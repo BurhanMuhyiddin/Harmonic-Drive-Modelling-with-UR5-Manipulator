@@ -1,0 +1,33 @@
+component nonlinearDamper
+
+nodes
+    r = foundation.mechanical.rotational.rotational;%R:left
+    c = foundation.mechanical.rotational.rotational;%C:right
+end
+
+parameters  % Damping coefficients
+    B = {0.00064, 'N*m/(rad/s)'};
+    B1 = {0.008,'N*m'};
+    B2 = {-0.007,'N*m'};
+end
+
+variables 
+ t = {0,'N*m'};
+ w = {0, 'rad/s'};
+end
+
+branches
+    t:r.t -> c.t;
+end
+
+equations
+    
+    if w>0
+    t == B*w+B1;
+    else
+    t == B*w-B2;
+    end
+    w == r.w - c.w;
+    
+end
+end

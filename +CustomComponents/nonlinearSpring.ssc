@@ -1,0 +1,46 @@
+component nonlinearSpring
+    
+nodes
+    r = foundation.mechanical.rotational.rotational; % r:left
+    c = foundation.mechanical.rotational.rotational; % c:right
+end
+
+parameters
+    K1 = {31e3, 'N*m/rad' };
+    K2 = {50e3, 'N*m/rad' };
+    K3 = {57e3, 'N*m/rad' };
+    T1 = {14, 'N*m'};
+    T2 = {48, 'N*m'};
+end
+
+parameters (Access = private)
+    fi1 = T1 / K1;
+    fi2 = T1 / K1 + (T2 - T1) / K2;
+end
+
+variables
+    theta = { 0, 'rad' };
+    t = { 0, 'N*m' };
+    w = { 0, 'rad/s' };
+end
+
+branches
+    t : r.t -> c.t;
+end
+
+equations
+    assert(K1 >= 0 & K2 >=0 & K3 >= 0, 'Stiffness must be >= 0');
+    
+    w == r.w - c.w;
+    w == theta.der;
+    
+    if theta <= fi1 && theta >= -fi1
+        t == theta * K1;
+    elseif theta > fi2 || theta < -fi2
+        t == (theta - sign(theta) * fi2) * K3 + sign(theta) * T2;
+    else
+        t == (theta - sign(theta) * fi1) * K2 + sign(theta) * T1;
+    end
+end
+
+end
